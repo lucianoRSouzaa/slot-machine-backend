@@ -1,0 +1,54 @@
+package model
+
+type SlotMachine struct {
+	ID             string `json:"id"`
+	Level          int    `json:"level"`
+	Balance        int    `json:"balance"`
+	InitialBalance int    `json:"initial_balance"`
+	Symbols        map[string]string
+	Permutations   [][3]string
+	MultipleGain   int
+}
+
+func NewSlotMachine(id string, level, balance int) *SlotMachine {
+	sm := &SlotMachine{
+		ID:             id,
+		Level:          level,
+		Balance:        balance,
+		InitialBalance: balance,
+		Symbols: map[string]string{
+			"money_mouth_face": "1F911",
+			"cold_face":        "1F976",
+			"alien":            "1F47D",
+			"heart_on_fire":    "2764",
+			"collision":        "1F4A5",
+		},
+		MultipleGain: 3,
+	}
+	sm.GeneratePermutations()
+	return sm
+}
+
+func (sm *SlotMachine) GeneratePermutations() {
+	perms := [][3]string{}
+	symbolKeys := make([]string, 0, len(sm.Symbols))
+	for k := range sm.Symbols {
+		symbolKeys = append(symbolKeys, k)
+	}
+
+	for _, a := range symbolKeys {
+		for _, b := range symbolKeys {
+			for _, c := range symbolKeys {
+				perms = append(perms, [3]string{a, b, c})
+			}
+		}
+	}
+
+	for j := 0; j < sm.Level; j++ {
+		for _, sym := range symbolKeys {
+			perms = append(perms, [3]string{sym, sym, sym})
+		}
+	}
+
+	sm.Permutations = perms
+}
