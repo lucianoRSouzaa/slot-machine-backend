@@ -3,7 +3,10 @@ package http
 import (
 	"net/http"
 
+	_ "slot-machine/docs"
+
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func NewRouter(handler *Handler) http.Handler {
@@ -19,6 +22,8 @@ func NewRouter(handler *Handler) http.Handler {
 
 	// Rota para jogar na máquina de slot
 	r.HandleFunc("/play", handler.PlaySlotMachine).Methods("POST")
+
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	return r
 }
