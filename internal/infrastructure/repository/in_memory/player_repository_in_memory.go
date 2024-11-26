@@ -12,7 +12,7 @@ type InMemoryPlayerRepository struct {
 	mu      sync.RWMutex
 }
 
-func NewInMemoryPlayerRepository() *InMemoryPlayerRepository {
+func NewInMemoryPlayerRepository() repository.PlayerRepository {
 	return &InMemoryPlayerRepository{
 		players: make(map[string]*model.Player),
 	}
@@ -44,4 +44,16 @@ func (r *InMemoryPlayerRepository) UpdatePlayer(ctx context.Context, player *mod
 	}
 	r.players[player.ID] = player
 	return nil
+}
+
+func (r *InMemoryPlayerRepository) GetPlayerByEmail(ctx context.Context, email string) (*model.Player, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	for _, player := range r.players {
+		if player.Email == email {
+			return player, nil
+		}
+	}
+
+	return nil, repository.ErrPlayerNotFound
 }
