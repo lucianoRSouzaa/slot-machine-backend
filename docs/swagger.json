@@ -1,0 +1,116 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/play": {
+            "post": {
+                "description": "Permite que o jogador faça uma aposta e jogue na máquina caça-níqueis especificada.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SlotMachine"
+                ],
+                "summary": "Jogar na máquina caça-níqueis",
+                "parameters": [
+                    {
+                        "description": "Dados da jogada",
+                        "name": "playRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usecase.PlayRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jogada realizada com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/usecase.PlayResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Payload inválido",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Máquina caça-níqueis não encontrada",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "422": {
+                        "description": "Saldo insuficiente",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "http.HTTPError": {
+            "description": "Estrutura para representar erros na API. Contém a mensagem de erro e um código opcional. Pode ser expandida conforme necessário.",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "Código do erro HTTP",
+                    "type": "integer"
+                },
+                "message": {
+                    "description": "Mensagem descritiva do erro",
+                    "type": "string"
+                }
+            }
+        },
+        "usecase.PlayRequest": {
+            "type": "object",
+            "properties": {
+                "amount_bet": {
+                    "type": "integer"
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "player_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "usecase.PlayResponse": {
+            "type": "object",
+            "properties": {
+                "player_balance": {
+                    "type": "integer"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "slot_machine_balance": {
+                    "type": "integer"
+                },
+                "win": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

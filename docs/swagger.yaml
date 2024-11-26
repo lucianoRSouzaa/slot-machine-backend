@@ -1,0 +1,77 @@
+definitions:
+  http.HTTPError:
+    description: Estrutura para representar erros na API. Contém a mensagem de erro
+      e um código opcional. Pode ser expandida conforme necessário.
+    properties:
+      code:
+        description: Código do erro HTTP
+        type: integer
+      message:
+        description: Mensagem descritiva do erro
+        type: string
+    type: object
+  usecase.PlayRequest:
+    properties:
+      amount_bet:
+        type: integer
+      machine_id:
+        type: string
+      player_id:
+        type: string
+    type: object
+  usecase.PlayResponse:
+    properties:
+      player_balance:
+        type: integer
+      result:
+        items:
+          type: string
+        type: array
+      slot_machine_balance:
+        type: integer
+      win:
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /play:
+    post:
+      consumes:
+      - application/json
+      description: Permite que o jogador faça uma aposta e jogue na máquina caça-níqueis
+        especificada.
+      parameters:
+      - description: Dados da jogada
+        in: body
+        name: playRequest
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.PlayRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Jogada realizada com sucesso
+          schema:
+            $ref: '#/definitions/usecase.PlayResponse'
+        "400":
+          description: Payload inválido
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "404":
+          description: Máquina caça-níqueis não encontrada
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "422":
+          description: Saldo insuficiente
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Erro interno do servidor
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      summary: Jogar na máquina caça-níqueis
+      tags:
+      - SlotMachine
+swagger: "2.0"
