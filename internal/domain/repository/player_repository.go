@@ -13,5 +13,6 @@ var (
 type PlayerRepository interface {
 	CreatePlayer(ctx context.Context, player *model.Player) error
 	GetPlayer(ctx context.Context, id string) (*model.Player, error)
+	GetPlayerByEmail(ctx context.Context, email string) (*model.Player, error)
 	UpdatePlayer(ctx context.Context, player *model.Player) error
 }
