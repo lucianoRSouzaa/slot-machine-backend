@@ -7,6 +7,15 @@ import (
 	"slot-machine/internal/domain/repository"
 )
 
+// HTTPError representa um erro retornado pela API.
+// @Description Estrutura para representar erros na API.
+// @Description Contém a mensagem de erro e um código opcional.
+// @Description Pode ser expandida conforme necessário.
+type HTTPError struct {
+	Code    int    `json:"code"`    // Código do erro HTTP
+	Message string `json:"message"` // Mensagem descritiva do erro
+}
+
 type Handler struct {
 	CreatePlayerUseCase          *usecase.CreatePlayerUseCase
 	CreateSlotMachineUseCase     *usecase.CreateSlotMachineUseCase
@@ -31,6 +40,19 @@ func NewHandler(
 	}
 }
 
+// PlaySlotMachine permite que o jogador jogue na máquina caça-níqueis.
+// @Summary Jogar na máquina caça-níqueis
+// @Description Permite que o jogador faça uma aposta e jogue na máquina caça-níqueis especificada.
+// @Tags SlotMachine
+// @Accept json
+// @Produce json
+// @Param playRequest body usecase.PlayRequest true "Dados da jogada"
+// @Success 200 {object} usecase.PlayResponse "Jogada realizada com sucesso"
+// @Failure 400 {object} HTTPError "Payload inválido"
+// @Failure 404 {object} HTTPError "Máquina caça-níqueis não encontrada"
+// @Failure 422 {object} HTTPError "Saldo insuficiente"
+// @Failure 500 {object} HTTPError "Erro interno do servidor"
+// @Router /play [post]
 func (h *Handler) PlaySlotMachine(w http.ResponseWriter, r *http.Request) {
 	var req usecase.PlayRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
