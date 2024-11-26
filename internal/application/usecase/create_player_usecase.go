@@ -5,6 +5,8 @@ import (
 	"errors"
 	"slot-machine/internal/domain/model"
 	"slot-machine/internal/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -16,8 +18,9 @@ type CreatePlayerUseCase struct {
 }
 
 type CreatePlayerRequest struct {
-	ID      string `json:"id"`
-	Balance int    `json:"balance"`
+	Email    string `json:"email"`
+	Balance  int    `json:"balance"`
+	Password string `json:"password"`
 }
 
 type CreatePlayerResponse struct {
@@ -31,17 +34,20 @@ func NewCreatePlayerUseCase(pr repository.PlayerRepository) *CreatePlayerUseCase
 }
 
 func (uc *CreatePlayerUseCase) Execute(ctx context.Context, req *CreatePlayerRequest) (*CreatePlayerResponse, error) {
-	_, err := uc.PlayerRepo.GetPlayer(ctx, req.ID)
-	if err == nil {
+	playerCreated, err := uc.PlayerRepo.GetPlayerByEmail(ctx, req.Email)
+
+	if playerCreated != nil {
 		return nil, ErrPlayerAlreadyExists
 	}
-	if err != repository.ErrPlayerNotFound {
+	if err != nil && err != repository.ErrPlayerNotFound {
 		return nil, err
 	}
 
 	player := &model.Player{
-		ID:      req.ID,
-		Balance: req.Balance,
+		ID:       uuid.New().String(),
+		Balance:  req.Balance,
+		Email:    req.Email,
+		Password: req.Password,
 	}
 
 	if err := uc.PlayerRepo.CreatePlayer(ctx, player); err != nil {
