@@ -3,6 +3,7 @@ module slot-machine
 go 1.23.1
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/sirupsen/logrus v1.9.3
