@@ -61,6 +61,58 @@
                     }
                 }
             }
+        },
+        "/players": {
+            "post": {
+                "description": "Permite a criação de um novo jogador com um saldo inicial.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Player"
+                ],
+                "summary": "Criar um novo jogador",
+                "parameters": [
+                    {
+                        "description": "Dados do jogador a ser criado",
+                        "name": "createPlayerRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usecase.CreatePlayerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Jogador criado com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/usecase.CreatePlayerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Payload inválido",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "409": {
+                        "description": "Jogador já existe",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -75,6 +127,45 @@
                 "message": {
                     "description": "Mensagem descritiva do erro",
                     "type": "string"
+                }
+            }
+        },
+        "model.Player": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "usecase.CreatePlayerRequest": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "usecase.CreatePlayerResponse": {
+            "type": "object",
+            "properties": {
+                "player": {
+                    "$ref": "#/definitions/model.Player"
                 }
             }
         },

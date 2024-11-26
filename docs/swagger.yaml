@@ -10,6 +10,31 @@ definitions:
         description: Mensagem descritiva do erro
         type: string
     type: object
+  model.Player:
+    properties:
+      balance:
+        type: integer
+      email:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+    type: object
+  usecase.CreatePlayerRequest:
+    properties:
+      balance:
+        type: integer
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  usecase.CreatePlayerResponse:
+    properties:
+      player:
+        $ref: '#/definitions/model.Player'
+    type: object
   usecase.PlayRequest:
     properties:
       amount_bet:
@@ -74,4 +99,38 @@ paths:
       summary: Jogar na máquina caça-níqueis
       tags:
       - SlotMachine
+  /players:
+    post:
+      consumes:
+      - application/json
+      description: Permite a criação de um novo jogador com um saldo inicial.
+      parameters:
+      - description: Dados do jogador a ser criado
+        in: body
+        name: createPlayerRequest
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.CreatePlayerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Jogador criado com sucesso
+          schema:
+            $ref: '#/definitions/usecase.CreatePlayerResponse'
+        "400":
+          description: Payload inválido
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "409":
+          description: Jogador já existe
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Erro interno do servidor
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      summary: Criar um novo jogador
+      tags:
+      - Player
 swagger: "2.0"
