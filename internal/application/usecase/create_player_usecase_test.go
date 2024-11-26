@@ -18,8 +18,9 @@ func TestCreatePlayerUseCase(t *testing.T) {
 
 	t.Run("Execute_Success", func(t *testing.T) {
 		req := &CreatePlayerRequest{
-			ID:      "player1",
-			Balance: 1000,
+			Balance:  1000,
+			Email:    "email@email.co",
+			Password: "password",
 		}
 
 		resp, err := createPlayerUC.Execute(ctx, req)
@@ -27,25 +28,28 @@ func TestCreatePlayerUseCase(t *testing.T) {
 		assert.NoError(t, err, "Expected no error when creating a new player")
 
 		assert.NotNil(t, resp, "Expected a response")
-		assert.Equal(t, req.ID, resp.Player.ID, "Player ID should match the request")
+		assert.Equal(t, req.Email, resp.Player.Email, "Player Email should match the request")
 		assert.Equal(t, req.Balance, resp.Player.Balance, "Player balance should match the request")
 
-		storedPlayer, err := playerRepo.GetPlayer(ctx, "player1")
+		storedPlayer, err := playerRepo.GetPlayer(ctx, resp.Player.ID)
 		assert.NoError(t, err, "Expected no error when retrieving the created player")
 		assert.Equal(t, resp.Player, *storedPlayer, "Stored player should match the response")
 	})
 
 	t.Run("Execute_PlayerAlreadyExists", func(t *testing.T) {
 		initialPlayer := &model.Player{
-			ID:      "player2",
-			Balance: 500,
+			ID:       "player2",
+			Balance:  500,
+			Email:    "email@email.co",
+			Password: "password",
 		}
 		err := playerRepo.CreatePlayer(ctx, initialPlayer)
 		assert.NoError(t, err, "Expected no error when initially creating a player")
 
 		req := &CreatePlayerRequest{
-			ID:      "player2",
-			Balance: 1500,
+			Balance:  1500,
+			Email:    "email@email.co",
+			Password: "password",
 		}
 
 		resp, err := createPlayerUC.Execute(ctx, req)
