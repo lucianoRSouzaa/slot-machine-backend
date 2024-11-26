@@ -70,6 +70,18 @@ func (h *Handler) PlaySlotMachine(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// CreatePlayer permite a criação de um novo jogador.
+// @Summary Criar um novo jogador
+// @Description Permite a criação de um novo jogador com um saldo inicial.
+// @Tags Player
+// @Accept json
+// @Produce json
+// @Param createPlayerRequest body usecase.CreatePlayerRequest true "Dados do jogador a ser criado"
+// @Success 201 {object} usecase.CreatePlayerResponse "Jogador criado com sucesso"
+// @Failure 400 {object} HTTPError "Payload inválido"
+// @Failure 409 {object} HTTPError "Jogador já existe"
+// @Failure 500 {object} HTTPError "Erro interno do servidor"
+// @Router /players [post]
 func (h *Handler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 	var req usecase.CreatePlayerRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
