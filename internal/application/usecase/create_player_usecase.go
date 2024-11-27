@@ -12,6 +12,7 @@ import (
 
 var (
 	ErrPlayerAlreadyExists = errors.New("player already exists")
+	ErrValidate            = errors.New("balance, email, and password must be provided")
 )
 
 type CreatePlayerUseCase struct {
@@ -37,6 +38,11 @@ func NewCreatePlayerUseCase(repo repository.PlayerRepository, hasher security.Pa
 }
 
 func (uc *CreatePlayerUseCase) Execute(ctx context.Context, req *CreatePlayerRequest) (*CreatePlayerResponse, error) {
+
+	if req.Email == "" || req.Password == "" {
+		return nil, ErrValidate
+	}
+
 	playerCreated, err := uc.PlayerRepo.GetPlayerByEmail(ctx, req.Email)
 
 	if playerCreated != nil {
