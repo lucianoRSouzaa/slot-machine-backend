@@ -12,7 +12,7 @@ import (
 
 var (
 	ErrPlayerAlreadyExists = errors.New("player already exists")
-	ErrValidate            = errors.New("balance, email, and password must be provided")
+	ErrValidate            = errors.New("error validating")
 )
 
 type CreatePlayerUseCase struct {
