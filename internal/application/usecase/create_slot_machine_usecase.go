@@ -38,7 +38,7 @@ func (uc *CreateSlotMachineUseCase) Execute(ctx context.Context, req *CreateSlot
 	id := uuid.New().String()
 
 	if req.Level == 0 || req.MultipleGain == 0 || req.Description == "" {
-		return nil, errors.New("level and multiple gain must be greater than 0 and description must be provided")
+		return nil, ErrValidate
 	}
 
 	machine := model.NewSlotMachine(id, req.Level, req.Balance, req.MultipleGain, req.Description)
