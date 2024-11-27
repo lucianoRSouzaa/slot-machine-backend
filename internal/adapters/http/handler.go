@@ -55,8 +55,15 @@ func NewHandler(
 // @Router /play [post]
 func (h *Handler) PlaySlotMachine(w http.ResponseWriter, r *http.Request) {
 	var req usecase.PlayRequest
+	w.Header().Set("Content-Type", "application/json")
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid request payload",
+		})
+
 		return
 	}
 
@@ -66,7 +73,6 @@ func (h *Handler) PlaySlotMachine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -84,22 +90,37 @@ func (h *Handler) PlaySlotMachine(w http.ResponseWriter, r *http.Request) {
 // @Router /players [post]
 func (h *Handler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 	var req usecase.CreatePlayerRequest
+	w.Header().Set("Content-Type", "application/json")
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid request payload",
+		})
+
 		return
 	}
 
 	resp, err := h.CreatePlayerUseCase.Execute(r.Context(), &req)
 	if err != nil {
 		if err == usecase.ErrPlayerAlreadyExists {
-			http.Error(w, "Player already exists", http.StatusConflict)
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(HTTPError{
+				Code:    http.StatusConflict,
+				Message: "Player already exists",
+			})
+
 			return
 		}
-		http.Error(w, "Unable to create player", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Unable to create player",
+		})
+
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(resp)
@@ -179,10 +200,22 @@ func (h *Handler) GetSlotMachineBalance(w http.ResponseWriter, r *http.Request) 
 func handleError(w http.ResponseWriter, err error) {
 	switch err {
 	case usecase.ErrInsufficientBalance:
-		http.Error(w, "Insufficient balance", http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(HTTPError{
+			Code:    http.StatusUnprocessableEntity,
+			Message: "Insufficient balance",
+		})
 	case repository.ErrPlayerNotFound, repository.ErrSlotMachineNotFound:
-		http.Error(w, err.Error(), http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(HTTPError{
+			Code:    http.StatusNotFound,
+			Message: "Resource not found",
+		})
 	default:
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		})
 	}
 }
