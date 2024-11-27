@@ -18,7 +18,7 @@ func TestGetSlotMachineBalanceUseCase(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("Execute_Success", func(t *testing.T) {
-		machine := model.NewSlotMachine("machine1", 1, 10000)
+		machine := model.NewSlotMachine("machine1", 1, 10000, 2, "teste")
 		err := slotRepo.CreateSlotMachine(ctx, machine)
 		assert.NoError(t, err, "Expected no error when creating a slot machine")
 
