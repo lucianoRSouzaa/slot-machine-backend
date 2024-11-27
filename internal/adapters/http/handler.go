@@ -134,24 +134,60 @@ func (h *Handler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+// CreateSlotMachine permite a criação de uma nova máquina caça-níqueis.
+// @Summary Criar uma nova máquina caça-níqueis
+// @Description Permite a criação de uma nova máquina caça-níqueis com os parâmetros especificados.
+// @Tags SlotMachine
+// @Accept json
+// @Produce json
+// @Param createSlotMachineRequest body usecase.CreateSlotMachineRequest true "Dados da máquina caça-níqueis a ser criada"
+// @Success 201 {object} usecase.CreateSlotMachineResponse "Máquina criada com sucesso"
+// @Failure 400 {object} HTTPError "Payload inválido ou parâmetros inválidos"
+// @Failure 500 {object} HTTPError "Erro interno do servidor"
+// @Router /machines [post]
 func (h *Handler) CreateSlotMachine(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var req usecase.CreateSlotMachineRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid request payload",
+		})
+
 		return
 	}
 
 	resp, err := h.CreateSlotMachineUseCase.Execute(r.Context(), &req)
 	if err != nil {
 		if err == usecase.ErrSlotMachineAlreadyExists {
-			http.Error(w, "Slot machine already exists", http.StatusConflict)
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(HTTPError{
+				Code:    http.StatusConflict,
+				Message: "Slot machine already exists",
+			})
+
+			return
+		} else if err == usecase.ErrValidate {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(HTTPError{
+				Code:    http.StatusBadRequest,
+				Message: "level, multiple gain, and description must be provided",
+			})
+
 			return
 		}
-		http.Error(w, "Unable to create slot machine", http.StatusInternalServerError)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Unable to create slot machine",
+		})
+
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
 
