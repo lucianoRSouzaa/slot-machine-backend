@@ -112,6 +112,14 @@ func (h *Handler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 			})
 
 			return
+		} else if err == usecase.ErrValidate {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(HTTPError{
+				Code:    http.StatusBadRequest,
+				Message: "email and password must be provided",
+			})
+
+			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(HTTPError{
