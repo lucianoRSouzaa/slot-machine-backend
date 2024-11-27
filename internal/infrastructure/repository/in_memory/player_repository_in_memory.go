@@ -32,7 +32,9 @@ func (r *InMemoryPlayerRepository) GetPlayer(ctx context.Context, id string) (*m
 	if !exists {
 		return nil, repository.ErrPlayerNotFound
 	}
-	return player, nil
+	playerCopy := *player
+	playerCopy.Password = ""
+	return &playerCopy, nil
 }
 
 func (r *InMemoryPlayerRepository) UpdatePlayer(ctx context.Context, player *model.Player) error {
@@ -51,7 +53,9 @@ func (r *InMemoryPlayerRepository) GetPlayerByEmail(ctx context.Context, email s
 	defer r.mu.RUnlock()
 	for _, player := range r.players {
 		if player.Email == email {
-			return player, nil
+			playerCopy := *player
+			playerCopy.Password = ""
+			return &playerCopy, nil
 		}
 	}
 
