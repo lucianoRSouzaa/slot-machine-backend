@@ -4,15 +4,18 @@ import (
 	"context"
 	"slot-machine/internal/domain/model"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
+	"slot-machine/internal/infrastructure/security"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestCreatePlayerUseCase(t *testing.T) {
 	playerRepo := repository_in_memory.NewInMemoryPlayerRepository()
+	hasher := security.NewBcryptPasswordHasher(bcrypt.DefaultCost)
 
-	createPlayerUC := NewCreatePlayerUseCase(playerRepo)
+	createPlayerUC := NewCreatePlayerUseCase(playerRepo, hasher)
 
 	ctx := context.Background()
 
