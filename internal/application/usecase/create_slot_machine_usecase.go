@@ -5,6 +5,8 @@ import (
 	"errors"
 	"slot-machine/internal/domain/model"
 	"slot-machine/internal/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -16,9 +18,10 @@ type CreateSlotMachineUseCase struct {
 }
 
 type CreateSlotMachineRequest struct {
-	ID      string `json:"id"`
-	Level   int    `json:"level"`
-	Balance int    `json:"balance"`
+	Level        int    `json:"level"`
+	Balance      int    `json:"balance"`
+	MultipleGain int    `json:"multiple_gain"`
+	Description  string `json:"description"`
 }
 
 type CreateSlotMachineResponse struct {
@@ -32,15 +35,13 @@ func NewCreateSlotMachineUseCase(smr repository.SlotMachineRepository) *CreateSl
 }
 
 func (uc *CreateSlotMachineUseCase) Execute(ctx context.Context, req *CreateSlotMachineRequest) (*CreateSlotMachineResponse, error) {
-	_, err := uc.SlotMachineRepo.GetSlotMachine(ctx, req.ID)
-	if err == nil {
-		return nil, ErrSlotMachineAlreadyExists
-	}
-	if err != repository.ErrSlotMachineNotFound {
-		return nil, err
+	id := uuid.New().String()
+
+	if req.Level == 0 || req.MultipleGain == 0 || req.Description == "" {
+		return nil, errors.New("level and multiple gain must be greater than 0 and description must be provided")
 	}
 
-	machine := model.NewSlotMachine(req.ID, req.Level, req.Balance)
+	machine := model.NewSlotMachine(id, req.Level, req.Balance, req.MultipleGain, req.Description)
 
 	if err := uc.SlotMachineRepo.CreateSlotMachine(ctx, machine); err != nil {
 		return nil, err
