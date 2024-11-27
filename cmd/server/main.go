@@ -8,11 +8,13 @@ import (
 	httpInternal "slot-machine/internal/adapters/http"
 	"slot-machine/internal/application/usecase"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
+	"slot-machine/internal/infrastructure/security"
 	"syscall"
 	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -24,8 +26,10 @@ func main() {
 	playerRepo := repository_in_memory.NewInMemoryPlayerRepository()
 	slotRepo := repository_in_memory.NewInMemorySlotMachineRepository()
 
+	hasher := security.NewBcryptPasswordHasher(bcrypt.DefaultCost)
+
 	playUC := usecase.NewPlayUseCase(playerRepo, slotRepo)
-	createPlayerUC := usecase.NewCreatePlayerUseCase(playerRepo)
+	createPlayerUC := usecase.NewCreatePlayerUseCase(playerRepo, hasher)
 	createSlotMachineUC := usecase.NewCreateSlotMachineUseCase(slotRepo)
 	getPlayerBalanceUC := usecase.NewGetPlayerBalanceUseCase(playerRepo)
 	getSlotMachineBalanceUC := usecase.NewGetSlotMachineBalanceUseCase(slotRepo)
