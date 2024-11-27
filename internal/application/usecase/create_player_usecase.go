@@ -5,6 +5,7 @@ import (
 	"errors"
 	"slot-machine/internal/domain/model"
 	"slot-machine/internal/domain/repository"
+	"slot-machine/internal/domain/security"
 
 	"github.com/google/uuid"
 )
@@ -14,7 +15,8 @@ var (
 )
 
 type CreatePlayerUseCase struct {
-	PlayerRepo repository.PlayerRepository
+	PlayerRepo     repository.PlayerRepository
+	PasswordHasher security.PasswordHasher
 }
 
 type CreatePlayerRequest struct {
@@ -27,9 +29,10 @@ type CreatePlayerResponse struct {
 	Player model.Player `json:"player"`
 }
 
-func NewCreatePlayerUseCase(pr repository.PlayerRepository) *CreatePlayerUseCase {
+func NewCreatePlayerUseCase(repo repository.PlayerRepository, hasher security.PasswordHasher) *CreatePlayerUseCase {
 	return &CreatePlayerUseCase{
-		PlayerRepo: pr,
+		PlayerRepo:     repo,
+		PasswordHasher: hasher,
 	}
 }
 
@@ -43,16 +46,24 @@ func (uc *CreatePlayerUseCase) Execute(ctx context.Context, req *CreatePlayerReq
 		return nil, err
 	}
 
+	passwordHashed, err := uc.PasswordHasher.Hash(req.Password)
+
+	if err != nil {
+		return nil, err
+	}
+
 	player := &model.Player{
 		ID:       uuid.New().String(),
 		Balance:  req.Balance,
 		Email:    req.Email,
-		Password: req.Password,
+		Password: passwordHashed,
 	}
 
 	if err := uc.PlayerRepo.CreatePlayer(ctx, player); err != nil {
 		return nil, err
 	}
+
+	player.Password = ""
 
 	return &CreatePlayerResponse{
 		Player: *player,
