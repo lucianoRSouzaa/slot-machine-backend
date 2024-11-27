@@ -19,6 +19,31 @@ definitions:
       id:
         type: string
     type: object
+  model.SlotMachine:
+    properties:
+      balance:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      initial_balance:
+        type: integer
+      level:
+        type: integer
+      multiple_gain:
+        type: integer
+      permutations:
+        items:
+          items:
+            type: string
+          type: array
+        type: array
+      symbols:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
   usecase.CreatePlayerRequest:
     properties:
       balance:
@@ -32,6 +57,22 @@ definitions:
     properties:
       player:
         $ref: '#/definitions/model.Player'
+    type: object
+  usecase.CreateSlotMachineRequest:
+    properties:
+      balance:
+        type: integer
+      description:
+        type: string
+      level:
+        type: integer
+      multiple_gain:
+        type: integer
+    type: object
+  usecase.CreateSlotMachineResponse:
+    properties:
+      machine:
+        $ref: '#/definitions/model.SlotMachine'
     type: object
   usecase.PlayRequest:
     properties:
@@ -58,6 +99,41 @@ definitions:
 info:
   contact: {}
 paths:
+  /machines:
+    post:
+      consumes:
+      - application/json
+      description: Permite a criação de uma nova máquina caça-níqueis com os parâmetros
+        especificados.
+      parameters:
+      - description: Dados da máquina caça-níqueis a ser criada
+        in: body
+        name: createSlotMachineRequest
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.CreateSlotMachineRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Máquina criada com sucesso
+          schema:
+            $ref: '#/definitions/usecase.CreateSlotMachineResponse'
+        "400":
+          description: Payload inválido ou parâmetros inválidos
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "409":
+          description: Máquina caça-níqueis já existe
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Erro interno do servidor
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      summary: Criar uma nova máquina caça-níqueis
+      tags:
+      - SlotMachine
   /play:
     post:
       consumes:

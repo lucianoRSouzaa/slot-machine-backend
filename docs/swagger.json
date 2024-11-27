@@ -4,6 +4,58 @@
         "contact": {}
     },
     "paths": {
+        "/machines": {
+            "post": {
+                "description": "Permite a criação de uma nova máquina caça-níqueis com os parâmetros especificados.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SlotMachine"
+                ],
+                "summary": "Criar uma nova máquina caça-níqueis",
+                "parameters": [
+                    {
+                        "description": "Dados da máquina caça-níqueis a ser criada",
+                        "name": "createSlotMachineRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usecase.CreateSlotMachineRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Máquina criada com sucesso",
+                        "schema": {
+                            "$ref": "#/definitions/usecase.CreateSlotMachineResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Payload inválido ou parâmetros inválidos",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "409": {
+                        "description": "Máquina caça-níqueis já existe",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/play": {
             "post": {
                 "description": "Permite que o jogador faça uma aposta e jogue na máquina caça-níqueis especificada.",
@@ -144,6 +196,44 @@
                 }
             }
         },
+        "model.SlotMachine": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initial_balance": {
+                    "type": "integer"
+                },
+                "level": {
+                    "type": "integer"
+                },
+                "multiple_gain": {
+                    "type": "integer"
+                },
+                "permutations": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "symbols": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "usecase.CreatePlayerRequest": {
             "type": "object",
             "properties": {
@@ -163,6 +253,31 @@
             "properties": {
                 "player": {
                     "$ref": "#/definitions/model.Player"
+                }
+            }
+        },
+        "usecase.CreateSlotMachineRequest": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "integer"
+                },
+                "multiple_gain": {
+                    "type": "integer"
+                }
+            }
+        },
+        "usecase.CreateSlotMachineResponse": {
+            "type": "object",
+            "properties": {
+                "machine": {
+                    "$ref": "#/definitions/model.SlotMachine"
                 }
             }
         },
