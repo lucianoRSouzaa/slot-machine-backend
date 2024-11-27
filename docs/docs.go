@@ -152,9 +152,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
-                },
-                "password": {
-                    "type": "string"
                 }
             }
         },
