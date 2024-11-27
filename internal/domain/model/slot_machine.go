@@ -10,7 +10,7 @@ type SlotMachine struct {
 	MultipleGain   int
 }
 
-func NewSlotMachine(id string, level, balance int) *SlotMachine {
+func NewSlotMachine(id string, level, balance int, multipleGain int) *SlotMachine {
 	sm := &SlotMachine{
 		ID:             id,
 		Level:          level,
@@ -23,7 +23,7 @@ func NewSlotMachine(id string, level, balance int) *SlotMachine {
 			"heart_on_fire":    "2764",
 			"collision":        "1F4A5",
 		},
-		MultipleGain: 3,
+		MultipleGain: multipleGain,
 	}
 	sm.GeneratePermutations()
 	return sm
