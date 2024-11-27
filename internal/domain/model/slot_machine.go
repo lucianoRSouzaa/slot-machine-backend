@@ -1,16 +1,17 @@
 package model
 
 type SlotMachine struct {
-	ID             string `json:"id"`
-	Level          int    `json:"level"`
-	Balance        int    `json:"balance"`
-	InitialBalance int    `json:"initial_balance"`
-	Symbols        map[string]string
-	Permutations   [][3]string
-	MultipleGain   int
+	ID             string            `json:"id"`
+	Level          int               `json:"level"`
+	Balance        int               `json:"balance"`
+	InitialBalance int               `json:"initial_balance"`
+	Symbols        map[string]string `json:"symbols"`
+	Permutations   [][3]string       `json:"permutations"`
+	MultipleGain   int               `json:"multiple_gain"`
+	Description    string            `json:"description"`
 }
 
-func NewSlotMachine(id string, level, balance int, multipleGain int) *SlotMachine {
+func NewSlotMachine(id string, level, balance int, multipleGain int, description string) *SlotMachine {
 	sm := &SlotMachine{
 		ID:             id,
 		Level:          level,
@@ -24,6 +25,7 @@ func NewSlotMachine(id string, level, balance int, multipleGain int) *SlotMachin
 			"collision":        "1F4A5",
 		},
 		MultipleGain: multipleGain,
+		Description:  description,
 	}
 	sm.GeneratePermutations()
 	return sm
