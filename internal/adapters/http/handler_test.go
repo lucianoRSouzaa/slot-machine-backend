@@ -24,22 +24,26 @@ type HTTPError struct {
 
 func SetupHandler() *http.Handler {
 	playerRepo := repository_in_memory.NewInMemoryPlayerRepository()
+	slotMachineRepo := repository_in_memory.NewInMemorySlotMachineRepository()
 	hasher := security.NewBcryptPasswordHasher(bcrypt.DefaultCost)
 
 	createPlayerUC := usecase.NewCreatePlayerUseCase(playerRepo, hasher)
+	createSlotMachineUC := usecase.NewCreateSlotMachineUseCase(slotMachineRepo)
 
 	handler := &http.Handler{
-		CreatePlayerUseCase: createPlayerUC,
+		CreatePlayerUseCase:      createPlayerUC,
+		CreateSlotMachineUseCase: createSlotMachineUC,
 	}
 
 	return handler
 }
 
-func TestCreatePlayerHandler(t *testing.T) {
+func TestHandler(t *testing.T) {
 	handler := SetupHandler()
 
 	router := httpGo.NewServeMux()
 	router.HandleFunc("/players", handler.CreatePlayer)
+	router.HandleFunc("/slot-machines", handler.CreateSlotMachine)
 
 	t.Run("CreatePlayer_Success", func(t *testing.T) {
 		reqBody := usecase.CreatePlayerRequest{
@@ -137,6 +141,102 @@ func TestCreatePlayerHandler(t *testing.T) {
 		expectedError := HTTPError{
 			Code:    httpGo.StatusBadRequest,
 			Message: "Invalid request payload",
+		}
+
+		var actualError HTTPError
+		err = json.Unmarshal(rr.Body.Bytes(), &actualError)
+		assert.NoError(t, err, "Erro ao deserializar a resposta de erro")
+		assert.Equal(t, expectedError, actualError, "Mensagem de erro deve corresponder ao esperado")
+	})
+
+	t.Run("CreateSlotMachine_Success", func(t *testing.T) {
+		reqBody := usecase.CreateSlotMachineRequest{
+			Level:        1,
+			Balance:      1000,
+			MultipleGain: 10,
+			Description:  "Máquina de Ouro",
+		}
+
+		jsonBody, err := json.Marshal(reqBody)
+		assert.NoError(t, err, "Erro ao serializar a requisição")
+
+		req, err := httpGo.NewRequest("POST", "/slot-machines", bytes.NewBuffer(jsonBody))
+		assert.NoError(t, err, "Erro ao criar a requisição HTTP")
+
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		assert.Equal(t, httpGo.StatusCreated, rr.Code, "Status code deve ser 201 Created")
+
+		var resp usecase.CreateSlotMachineResponse
+		err = json.Unmarshal(rr.Body.Bytes(), &resp)
+		assert.NoError(t, err, "Erro ao deserializar a resposta")
+
+		assert.Equal(t, reqBody.Level, resp.Machine.Level, "Nível da máquina deve corresponder ao solicitado")
+		assert.Equal(t, reqBody.Balance, resp.Machine.Balance, "Saldo da máquina deve corresponder ao solicitado")
+		assert.Equal(t, reqBody.MultipleGain, resp.Machine.MultipleGain, "Ganho múltiplo deve corresponder ao solicitado")
+		assert.Equal(t, reqBody.Description, resp.Machine.Description, "Descrição da máquina deve corresponder ao solicitado")
+		assert.NotEmpty(t, resp.Machine.ID, "ID da máquina deve ser gerado")
+		assert.NotEmpty(t, resp.Machine.Permutations, "Permutações devem ser geradas")
+
+		storedMachine, err := handler.CreateSlotMachineUseCase.SlotMachineRepo.GetSlotMachine(context.Background(), resp.Machine.ID)
+		assert.NoError(t, err, "Erro ao recuperar a máquina do repositório")
+		assert.Equal(t, resp.Machine, *storedMachine, "Máquina armazenada deve corresponder à resposta")
+	})
+
+	t.Run("CreateSlotMachine_InvalidPayload", func(t *testing.T) {
+		invalidJSON := `{"level": "not_a_number", "balance": "invalid", "multiple_gain": "NaN", "description": ""}`
+
+		req, err := httpGo.NewRequest("POST", "/slot-machines", bytes.NewBufferString(invalidJSON))
+		assert.NoError(t, err, "Erro ao criar a requisição HTTP")
+
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		assert.Equal(t, httpGo.StatusBadRequest, rr.Code, "Status code deve ser 400 Bad Request")
+
+		expectedError := HTTPError{
+			Code:    httpGo.StatusBadRequest,
+			Message: "Invalid request payload",
+		}
+
+		var actualError HTTPError
+		err = json.Unmarshal(rr.Body.Bytes(), &actualError)
+		assert.NoError(t, err, "Erro ao deserializar a resposta de erro")
+		assert.Equal(t, expectedError, actualError, "Mensagem de erro deve corresponder ao esperado")
+	})
+
+	t.Run("CreateSlotMachine_InvalidParameters", func(t *testing.T) {
+		reqBody := usecase.CreateSlotMachineRequest{
+			Level:        0, // Inválido
+			Balance:      1000,
+			MultipleGain: 0,  // Inválido
+			Description:  "", // Inválido
+		}
+
+		jsonBody, err := json.Marshal(reqBody)
+		assert.NoError(t, err, "Erro ao serializar a requisição")
+
+		req, err := httpGo.NewRequest("POST", "/slot-machines", bytes.NewBuffer(jsonBody))
+		assert.NoError(t, err, "Erro ao criar a requisição HTTP")
+
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		assert.Equal(t, httpGo.StatusBadRequest, rr.Code, "Status code deve ser 400 Bad Request")
+
+		expectedError := HTTPError{
+			Code:    httpGo.StatusBadRequest,
+			Message: "level, multiple gain, and description must be provided",
 		}
 
 		var actualError HTTPError
