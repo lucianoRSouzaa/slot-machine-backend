@@ -74,6 +74,21 @@ definitions:
       machine:
         $ref: '#/definitions/model.SlotMachine'
     type: object
+  usecase.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  usecase.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
   usecase.PlayRequest:
     properties:
       amount_bet:
@@ -98,7 +113,46 @@ definitions:
     type: object
 info:
   contact: {}
+  description: Esta API permite que jogadores interajam com máquinas de slot, consultem
+    saldos, realizem apostas e autentiquem-se.
+  termsOfService: http://swagger.io/terms/
+  title: API Máquina de caça-níqueis
+  version: "1.0"
 paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica um usuário e retorna um token JWT.
+      parameters:
+      - description: Dados de autenticação
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecase.LoginResponse'
+        "400":
+          description: Requisição inválida
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "401":
+          description: Credenciais inválidas
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Erro interno do servidor
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      summary: Login
+      tags:
+      - Authentication
   /machines:
     post:
       consumes:
@@ -121,10 +175,6 @@ paths:
             $ref: '#/definitions/usecase.CreateSlotMachineResponse'
         "400":
           description: Payload inválido ou parâmetros inválidos
-          schema:
-            $ref: '#/definitions/http.HTTPError'
-        "409":
-          description: Máquina caça-níqueis já existe
           schema:
             $ref: '#/definitions/http.HTTPError'
         "500":
@@ -207,4 +257,9 @@ paths:
       summary: Criar um novo jogador
       tags:
       - Player
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
