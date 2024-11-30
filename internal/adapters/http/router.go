@@ -5,25 +5,27 @@ import (
 
 	_ "slot-machine/docs"
 
+	"slot-machine/internal/adapters/http/handler"
+	"slot-machine/internal/adapters/middleware"
+	"slot-machine/internal/domain/ports"
+
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-func NewRouter(handler *Handler) http.Handler {
+func NewRouter(handler *handler.Handler, jwtManager ports.JWTManager) http.Handler {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/login", handler.Login).Methods("POST")
-
-	// Rotas para jogadores
 	r.HandleFunc("/players", handler.CreatePlayer).Methods("POST")
-	r.HandleFunc("/players/balance", handler.GetPlayerBalance).Methods("GET")
 
-	// Rotas para máquinas de slot
-	r.HandleFunc("/machines", handler.CreateSlotMachine).Methods("POST")
-	r.HandleFunc("/machines/balance", handler.GetSlotMachineBalance).Methods("GET")
+	secure := r.PathPrefix("/").Subrouter()
+	secure.Use(middleware.JWTMiddleware(jwtManager))
 
-	// Rota para jogar na máquina de slot
-	r.HandleFunc("/play", handler.PlaySlotMachine).Methods("POST")
+	secure.HandleFunc("/players/balance", handler.GetPlayerBalance).Methods("GET")
+	secure.HandleFunc("/machines", handler.CreateSlotMachine).Methods("POST")
+	secure.HandleFunc("/machines/balance", handler.GetSlotMachineBalance).Methods("GET")
+	secure.HandleFunc("/play", handler.PlaySlotMachine).Methods("POST")
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
