@@ -6,7 +6,7 @@ import (
 	_ "slot-machine/docs"
 
 	"slot-machine/internal/adapters/http/handler"
-	"slot-machine/internal/adapters/middleware"
+	"slot-machine/internal/adapters/http/middleware"
 	"slot-machine/internal/domain/ports"
 
 	"github.com/gorilla/mux"
