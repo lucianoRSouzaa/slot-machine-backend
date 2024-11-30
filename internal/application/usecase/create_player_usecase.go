@@ -69,8 +69,6 @@ func (uc *CreatePlayerUseCase) Execute(ctx context.Context, req *CreatePlayerReq
 		return nil, err
 	}
 
-	player.Password = ""
-
 	return &CreatePlayerResponse{
 		Player: *player,
 	}, nil
