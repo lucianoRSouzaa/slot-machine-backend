@@ -15,4 +15,5 @@ type PlayerRepository interface {
 	GetPlayer(ctx context.Context, id string) (*model.Player, error)
 	GetPlayerByEmail(ctx context.Context, email string) (*model.Player, error)
 	UpdatePlayer(ctx context.Context, player *model.Player) error
+	ListPlayers(ctx context.Context) ([]*model.Player, error)
 }
