@@ -50,19 +50,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Requisição inválida",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     },
                     "401": {
                         "description": "Credenciais inválidas",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     }
                 }
@@ -70,6 +70,11 @@ const docTemplate = `{
         },
         "/machines": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Permite a criação de uma nova máquina caça-níqueis com os parâmetros especificados.",
                 "consumes": [
                     "application/json"
@@ -102,13 +107,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Payload inválido ou parâmetros inválidos",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     }
                 }
@@ -116,6 +121,11 @@ const docTemplate = `{
         },
         "/play": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Permite que o jogador faça uma aposta e jogue na máquina caça-níqueis especificada.",
                 "consumes": [
                     "application/json"
@@ -148,25 +158,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Payload inválido",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Máquina caça-níqueis não encontrada",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Saldo insuficiente",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     }
                 }
@@ -206,19 +216,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Payload inválido",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     },
                     "409": {
                         "description": "Jogador já existe",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/handler.HTTPError"
                         }
                     }
                 }
@@ -226,7 +236,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "http.HTTPError": {
+        "handler.HTTPError": {
             "description": "Estrutura para representar erros na API. Contém a mensagem de erro e um código opcional. Pode ser expandida conforme necessário.",
             "type": "object",
             "properties": {

@@ -1,5 +1,5 @@
 definitions:
-  http.HTTPError:
+  handler.HTTPError:
     description: Estrutura para representar erros na API. Contém a mensagem de erro
       e um código opcional. Pode ser expandida conforme necessário.
     properties:
@@ -141,15 +141,15 @@ paths:
         "400":
           description: Requisição inválida
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
         "401":
           description: Credenciais inválidas
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
         "500":
           description: Erro interno do servidor
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
       summary: Login
       tags:
       - Authentication
@@ -176,11 +176,13 @@ paths:
         "400":
           description: Payload inválido ou parâmetros inválidos
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
         "500":
           description: Erro interno do servidor
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Criar uma nova máquina caça-níqueis
       tags:
       - SlotMachine
@@ -207,19 +209,21 @@ paths:
         "400":
           description: Payload inválido
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
         "404":
           description: Máquina caça-níqueis não encontrada
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
         "422":
           description: Saldo insuficiente
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
         "500":
           description: Erro interno do servidor
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
+      security:
+      - BearerAuth: []
       summary: Jogar na máquina caça-níqueis
       tags:
       - SlotMachine
@@ -245,15 +249,15 @@ paths:
         "400":
           description: Payload inválido
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
         "409":
           description: Jogador já existe
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
         "500":
           description: Erro interno do servidor
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/handler.HTTPError'
       summary: Criar um novo jogador
       tags:
       - Player
