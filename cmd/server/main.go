@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	httpInternal "slot-machine/internal/adapters/http"
+	"slot-machine/internal/adapters/http/handler"
 	"slot-machine/internal/application/usecase"
 	"slot-machine/internal/infrastructure/jwt"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
@@ -48,9 +49,9 @@ func main() {
 	getSlotMachineBalanceUC := usecase.NewGetSlotMachineBalanceUseCase(slotRepo)
 	logicUc := usecase.NewLoginUseCase(playerRepo, hasher, jwtManager)
 
-	handler := httpInternal.NewHandler(createPlayerUC, createSlotMachineUC, playUC, getPlayerBalanceUC, getSlotMachineBalanceUC, logicUc)
+	handler := handler.NewHandler(createPlayerUC, createSlotMachineUC, playUC, getPlayerBalanceUC, getSlotMachineBalanceUC, logicUc)
 
-	router := httpInternal.NewRouter(handler)
+	router := httpInternal.NewRouter(handler, jwtManager)
 
 	corsAllowedOrigins := []string{"http://localhost:5173"}
 	corsAllowedMethods := []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
