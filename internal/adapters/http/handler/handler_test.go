@@ -1,4 +1,4 @@
-package http_test
+package handler_test
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	httpGo "net/http"
 	"net/http/httptest"
-	"slot-machine/internal/adapters/http"
+	"slot-machine/internal/adapters/http/handler"
 	"slot-machine/internal/application/usecase"
 	"slot-machine/internal/domain/model"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
@@ -22,7 +22,7 @@ type HTTPError struct {
 	Message string `json:"message"`
 }
 
-func SetupHandler() *http.Handler {
+func SetupHandler() *handler.Handler {
 	playerRepo := repository_in_memory.NewInMemoryPlayerRepository()
 	slotMachineRepo := repository_in_memory.NewInMemorySlotMachineRepository()
 	hasher := security.NewBcryptPasswordHasher(bcrypt.DefaultCost)
@@ -30,7 +30,7 @@ func SetupHandler() *http.Handler {
 	createPlayerUC := usecase.NewCreatePlayerUseCase(playerRepo, hasher)
 	createSlotMachineUC := usecase.NewCreateSlotMachineUseCase(slotMachineRepo)
 
-	handler := &http.Handler{
+	handler := &handler.Handler{
 		CreatePlayerUseCase:      createPlayerUC,
 		CreateSlotMachineUseCase: createSlotMachineUC,
 	}
@@ -74,6 +74,8 @@ func TestHandler(t *testing.T) {
 		assert.Equal(t, reqBody.Balance, resp.Player.Balance, "Saldo do jogador deve corresponder ao solicitado")
 
 		storedPlayer, err := handler.CreatePlayerUseCase.PlayerRepo.GetPlayer(context.Background(), resp.Player.ID)
+		storedPlayer.Password = ""
+
 		assert.NoError(t, err, "Erro ao recuperar o jogador do repositório")
 		assert.Equal(t, resp.Player, *storedPlayer, "Jogador armazenado deve corresponder à resposta")
 	})

@@ -1,4 +1,4 @@
-package http
+package handler
 
 import (
 	"encoding/json"
@@ -56,6 +56,7 @@ func NewHandler(
 // @Failure 422 {object} HTTPError "Saldo insuficiente"
 // @Failure 500 {object} HTTPError "Erro interno do servidor"
 // @Router /play [post]
+// @Security BearerAuth
 func (h *Handler) PlaySlotMachine(w http.ResponseWriter, r *http.Request) {
 	var req usecase.PlayRequest
 	w.Header().Set("Content-Type", "application/json")
@@ -148,6 +149,7 @@ func (h *Handler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} HTTPError "Payload inválido ou parâmetros inválidos"
 // @Failure 500 {object} HTTPError "Erro interno do servidor"
 // @Router /machines [post]
+// @Security BearerAuth
 func (h *Handler) CreateSlotMachine(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
