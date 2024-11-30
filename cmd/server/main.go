@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	httpInternal "slot-machine/internal/adapters/http"
 	"slot-machine/internal/application/usecase"
+	"slot-machine/internal/infrastructure/jwt"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
 	"slot-machine/internal/infrastructure/security"
 	"syscall"
@@ -17,7 +18,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// @title API Máquina de caça-níqueis
+// @version 1.0
+// @description Esta API permite que jogadores interajam com máquinas de slot, consultem saldos, realizem apostas e autentiquem-se.
+// @termsOfService http://swagger.io/terms/
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
+	secretKey := "your-secret-key"
+	tokenDuration := 24 * time.Hour
+
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.JSONFormatter{})
 	logger.SetOutput(os.Stdout)
@@ -27,14 +39,16 @@ func main() {
 	slotRepo := repository_in_memory.NewInMemorySlotMachineRepository()
 
 	hasher := security.NewBcryptPasswordHasher(bcrypt.DefaultCost)
+	jwtManager := jwt.NewJWTManager(secretKey, tokenDuration)
 
 	playUC := usecase.NewPlayUseCase(playerRepo, slotRepo)
 	createPlayerUC := usecase.NewCreatePlayerUseCase(playerRepo, hasher)
 	createSlotMachineUC := usecase.NewCreateSlotMachineUseCase(slotRepo)
 	getPlayerBalanceUC := usecase.NewGetPlayerBalanceUseCase(playerRepo)
 	getSlotMachineBalanceUC := usecase.NewGetSlotMachineBalanceUseCase(slotRepo)
+	logicUc := usecase.NewLoginUseCase(playerRepo, hasher, jwtManager)
 
-	handler := httpInternal.NewHandler(createPlayerUC, createSlotMachineUC, playUC, getPlayerBalanceUC, getSlotMachineBalanceUC)
+	handler := httpInternal.NewHandler(createPlayerUC, createSlotMachineUC, playUC, getPlayerBalanceUC, getSlotMachineBalanceUC, logicUc)
 
 	router := httpInternal.NewRouter(handler)
 
