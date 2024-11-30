@@ -25,6 +25,16 @@ func (r *InMemoryPlayerRepository) CreatePlayer(ctx context.Context, player *mod
 	return nil
 }
 
+func (r *InMemoryPlayerRepository) ListPlayers(ctx context.Context) ([]*model.Player, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	players := make([]*model.Player, 0, len(r.players))
+	for _, player := range r.players {
+		players = append(players, player)
+	}
+	return players, nil
+}
+
 func (r *InMemoryPlayerRepository) GetPlayer(ctx context.Context, id string) (*model.Player, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -32,9 +42,8 @@ func (r *InMemoryPlayerRepository) GetPlayer(ctx context.Context, id string) (*m
 	if !exists {
 		return nil, repository.ErrPlayerNotFound
 	}
-	playerCopy := *player
-	playerCopy.Password = ""
-	return &playerCopy, nil
+
+	return player, nil
 }
 
 func (r *InMemoryPlayerRepository) UpdatePlayer(ctx context.Context, player *model.Player) error {
@@ -53,9 +62,7 @@ func (r *InMemoryPlayerRepository) GetPlayerByEmail(ctx context.Context, email s
 	defer r.mu.RUnlock()
 	for _, player := range r.players {
 		if player.Email == email {
-			playerCopy := *player
-			playerCopy.Password = ""
-			return &playerCopy, nil
+			return player, nil
 		}
 	}
 
