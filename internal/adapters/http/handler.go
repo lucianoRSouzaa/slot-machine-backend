@@ -22,6 +22,7 @@ type Handler struct {
 	PlayUseCase                  *usecase.PlayUseCase
 	GetPlayerBalanceUseCase      *usecase.GetPlayerBalanceUseCase
 	GetSlotMachineBalanceUseCase *usecase.GetSlotMachineBalanceUseCase
+	loginUseCase                 *usecase.LoginUseCase
 }
 
 func NewHandler(
@@ -30,6 +31,7 @@ func NewHandler(
 	pUC *usecase.PlayUseCase,
 	gpUC *usecase.GetPlayerBalanceUseCase,
 	gsmUC *usecase.GetSlotMachineBalanceUseCase,
+	loginUC *usecase.LoginUseCase,
 ) *Handler {
 	return &Handler{
 		CreatePlayerUseCase:          cpUC,
@@ -37,6 +39,7 @@ func NewHandler(
 		PlayUseCase:                  pUC,
 		GetPlayerBalanceUseCase:      gpUC,
 		GetSlotMachineBalanceUseCase: gsmUC,
+		loginUseCase:                 loginUC,
 	}
 }
 
@@ -189,6 +192,41 @@ func (h *Handler) CreateSlotMachine(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(resp)
+}
+
+// LoginHandler realiza a autenticação do usuário e retorna um token JWT.
+// @Summary Login
+// @Description Autentica um usuário e retorna um token JWT.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param loginRequest body usecase.LoginRequest true "Dados de autenticação"
+// @Success 200 {object} usecase.LoginResponse
+// @Failure 400 {object} HTTPError "Requisição inválida"
+// @Failure 401 {object} HTTPError "Credenciais inválidas"
+// @Failure 500 {object} HTTPError "Erro interno do servidor"
+// @Router /login [post]
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	var req usecase.LoginRequest
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&req); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	resp, err := h.loginUseCase.Execute(r.Context(), &req)
+	if err != nil {
+		if err == usecase.ErrInvalidCredentials {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
 
