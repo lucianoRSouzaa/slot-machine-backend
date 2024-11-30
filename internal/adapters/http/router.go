@@ -12,6 +12,8 @@ import (
 func NewRouter(handler *Handler) http.Handler {
 	r := mux.NewRouter()
 
+	r.HandleFunc("/login", handler.Login).Methods("POST")
+
 	// Rotas para jogadores
 	r.HandleFunc("/players", handler.CreatePlayer).Methods("POST")
 	r.HandleFunc("/players/balance", handler.GetPlayerBalance).Methods("GET")
