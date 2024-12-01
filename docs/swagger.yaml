@@ -74,6 +74,11 @@ definitions:
       machine:
         $ref: '#/definitions/model.SlotMachine'
     type: object
+  usecase.GetPlayerBalanceResponse:
+    properties:
+      player:
+        $ref: '#/definitions/model.Player'
+    type: object
   usecase.LoginRequest:
     properties:
       email:
@@ -257,6 +262,35 @@ paths:
           schema:
             $ref: '#/definitions/handler_error.HTTPError'
       summary: Criar um novo jogador
+      tags:
+      - Player
+  /players/balance:
+    get:
+      consumes:
+      - application/json
+      description: Retorna o saldo do jogador especificado.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Saldo do jogador
+          schema:
+            $ref: '#/definitions/usecase.GetPlayerBalanceResponse'
+        "401":
+          description: Não autorizado
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+        "404":
+          description: Jogador não encontrado
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+        "500":
+          description: Erro interno do servidor
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Obter saldo do jogador
       tags:
       - Player
 securityDefinitions:

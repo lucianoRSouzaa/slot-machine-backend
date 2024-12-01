@@ -233,6 +233,52 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/players/balance": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retorna o saldo do jogador especificado.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Player"
+                ],
+                "summary": "Obter saldo do jogador",
+                "responses": {
+                    "200": {
+                        "description": "Saldo do jogador",
+                        "schema": {
+                            "$ref": "#/definitions/usecase.GetPlayerBalanceResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Jogador não encontrado",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -346,6 +392,14 @@ const docTemplate = `{
             "properties": {
                 "machine": {
                     "$ref": "#/definitions/model.SlotMachine"
+                }
+            }
+        },
+        "usecase.GetPlayerBalanceResponse": {
+            "type": "object",
+            "properties": {
+                "player": {
+                    "$ref": "#/definitions/model.Player"
                 }
             }
         },
