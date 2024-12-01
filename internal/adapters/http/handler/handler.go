@@ -277,10 +277,31 @@ func (h *Handler) GetPlayerBalance(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+// GetSlotMachineBalance retorna o saldo da máquina caça-níqueis.
+// @Summary Obter saldo da máquina caça-níqueis
+// @Description Retorna o saldo da máquina caça-níqueis especificada.
+// @Tags SlotMachine
+// @Accept json
+// @Produce json
+// @Param machine_id query string true "ID da máquina caça-níqueis"
+// @Success 200 {object} usecase.GetSlotMachineBalanceResponse "Saldo da máquina caça-níqueis"
+// @Failure 401 {object} handler_error.HTTPError "Não autorizado"
+// @Failure 400 {object} handler_error.HTTPError "ID da máquina caça-níqueis é obrigatório"
+// @Failure 404 {object} handler_error.HTTPError "Máquina caça-níqueis não encontrada"
+// @Failure 500 {object} handler_error.HTTPError "Erro interno do servidor"
+// @Router /machines/balance [get]
+// @Security BearerAuth
 func (h *Handler) GetSlotMachineBalance(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	machineID := r.URL.Query().Get("machine_id")
 	if machineID == "" {
-		http.Error(w, "machine_id is required", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(handler_error.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "machine_id is required",
+		})
+
 		return
 	}
 
@@ -291,13 +312,23 @@ func (h *Handler) GetSlotMachineBalance(w http.ResponseWriter, r *http.Request) 
 	resp, err := h.GetSlotMachineBalanceUseCase.Execute(r.Context(), &req)
 	if err != nil {
 		if err == repository.ErrSlotMachineNotFound {
-			http.Error(w, "Slot machine not found", http.StatusNotFound)
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(handler_error.HTTPError{
+				Code:    http.StatusNotFound,
+				Message: "Slot machine not found",
+			})
+
 			return
 		}
-		http.Error(w, "Unable to get slot machine balance", http.StatusInternalServerError)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(handler_error.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Unable to get slot machine balance",
+		})
+
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
