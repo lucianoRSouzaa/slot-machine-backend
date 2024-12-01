@@ -21,7 +21,7 @@ type PlayUseCase struct {
 }
 
 type PlayRequest struct {
-	PlayerID  string `json:"player_id"`
+	PlayerID  string `json:"-"`
 	MachineID string `json:"machine_id"`
 	AmountBet int    `json:"amount_bet"`
 }
