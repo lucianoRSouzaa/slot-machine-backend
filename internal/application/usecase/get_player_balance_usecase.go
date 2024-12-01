@@ -11,7 +11,7 @@ type GetPlayerBalanceUseCase struct {
 }
 
 type GetPlayerBalanceRequest struct {
-	PlayerID string `json:"player_id"`
+	PlayerID string `json:"-"`
 }
 
 type GetPlayerBalanceResponse struct {
