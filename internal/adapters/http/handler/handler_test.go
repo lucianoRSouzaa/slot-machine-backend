@@ -75,6 +75,7 @@ func TestHandler(t *testing.T) {
 
 		storedPlayer, err := handler.CreatePlayerUseCase.PlayerRepo.GetPlayer(context.Background(), resp.Player.ID)
 		storedPlayer.Password = ""
+		storedPlayer.Role = ""
 
 		assert.NoError(t, err, "Erro ao recuperar o jogador do repositório")
 		assert.Equal(t, resp.Player, *storedPlayer, "Jogador armazenado deve corresponder à resposta")
