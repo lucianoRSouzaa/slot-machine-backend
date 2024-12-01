@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"slot-machine/internal/adapters/http/handler"
+	handler_error "slot-machine/internal/adapters/http/handler/error"
 	"slot-machine/internal/domain/ports"
 	"strings"
 
@@ -26,7 +26,7 @@ func JWTMiddleware(jwtManager ports.JWTManager) mux.MiddlewareFunc {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
 				w.WriteHeader(http.StatusUnauthorized)
-				json.NewEncoder(w).Encode(handler.HTTPError{
+				json.NewEncoder(w).Encode(handler_error.HTTPError{
 					Code:    http.StatusUnauthorized,
 					Message: "Authorization header missing",
 				})
@@ -37,7 +37,7 @@ func JWTMiddleware(jwtManager ports.JWTManager) mux.MiddlewareFunc {
 			parts := strings.Split(authHeader, " ")
 			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
 				w.WriteHeader(http.StatusUnauthorized)
-				json.NewEncoder(w).Encode(handler.HTTPError{
+				json.NewEncoder(w).Encode(handler_error.HTTPError{
 					Code:    http.StatusUnauthorized,
 					Message: "Invalid Authorization header format. Expected 'Bearer <token>'",
 				})
@@ -50,7 +50,7 @@ func JWTMiddleware(jwtManager ports.JWTManager) mux.MiddlewareFunc {
 			claims, err := jwtManager.Verify(tokenString)
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
-				json.NewEncoder(w).Encode(handler.HTTPError{
+				json.NewEncoder(w).Encode(handler_error.HTTPError{
 					Code:    http.StatusUnauthorized,
 					Message: "Invalid token",
 				})
