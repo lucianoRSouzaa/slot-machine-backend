@@ -63,6 +63,7 @@ func (uc *CreatePlayerUseCase) Execute(ctx context.Context, req *CreatePlayerReq
 		Balance:  req.Balance,
 		Email:    req.Email,
 		Password: passwordHashed,
+		Role:     model.PlayerRole,
 	}
 
 	if err := uc.PlayerRepo.CreatePlayer(ctx, player); err != nil {
