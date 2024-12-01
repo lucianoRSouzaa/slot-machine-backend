@@ -50,19 +50,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Requisição inválida",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     },
                     "401": {
                         "description": "Credenciais inválidas",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     }
                 }
@@ -107,13 +107,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Payload inválido ou parâmetros inválidos",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     }
                 }
@@ -158,25 +158,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Payload inválido",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Máquina caça-níqueis não encontrada",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     },
                     "422": {
                         "description": "Saldo insuficiente",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     }
                 }
@@ -216,19 +216,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Payload inválido",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     },
                     "409": {
                         "description": "Jogador já existe",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/handler.HTTPError"
+                            "$ref": "#/definitions/handler_error.HTTPError"
                         }
                     }
                 }
@@ -236,7 +236,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.HTTPError": {
+        "handler_error.HTTPError": {
             "description": "Estrutura para representar erros na API. Contém a mensagem de erro e um código opcional. Pode ser expandida conforme necessário.",
             "type": "object",
             "properties": {
@@ -379,9 +379,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "machine_id": {
-                    "type": "string"
-                },
-                "player_id": {
                     "type": "string"
                 }
             }
