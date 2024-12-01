@@ -236,15 +236,31 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+// GetPlayerBalance retorna o saldo do jogador.
+// @Summary Obter saldo do jogador
+// @Description Retorna o saldo do jogador especificado.
+// @Tags Player
+// @Accept json
+// @Produce json
+// @Success 200 {object} usecase.GetPlayerBalanceResponse "Saldo do jogador"
+// @Failure 401 {object} handler_error.HTTPError "Não autorizado"
+// @Failure 404 {object} handler_error.HTTPError "Jogador não encontrado"
+// @Failure 500 {object} handler_error.HTTPError "Erro interno do servidor"
+// @Router /players/balance [get]
+// @Security BearerAuth
 func (h *Handler) GetPlayerBalance(w http.ResponseWriter, r *http.Request) {
-	playerID := r.URL.Query().Get("player_id")
-	if playerID == "" {
-		http.Error(w, "player_id is required", http.StatusBadRequest)
+	userID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(handler_error.HTTPError{
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
+		})
 		return
 	}
 
 	req := usecase.GetPlayerBalanceRequest{
-		PlayerID: playerID,
+		PlayerID: userID,
 	}
 
 	resp, err := h.GetPlayerBalanceUseCase.Execute(r.Context(), &req)
