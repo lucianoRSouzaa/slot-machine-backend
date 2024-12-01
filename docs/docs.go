@@ -119,6 +119,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/machines/balance": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retorna o saldo da máquina caça-níqueis especificada.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SlotMachine"
+                ],
+                "summary": "Obter saldo da máquina caça-níqueis",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da máquina caça-níqueis",
+                        "name": "machine_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Saldo da máquina caça-níqueis",
+                        "schema": {
+                            "$ref": "#/definitions/usecase.GetSlotMachineBalanceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "ID da máquina caça-níqueis é obrigatório",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Máquina caça-níqueis não encontrada",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/play": {
             "post": {
                 "security": [
@@ -400,6 +461,14 @@ const docTemplate = `{
             "properties": {
                 "player": {
                     "$ref": "#/definitions/model.Player"
+                }
+            }
+        },
+        "usecase.GetSlotMachineBalanceResponse": {
+            "type": "object",
+            "properties": {
+                "machine": {
+                    "$ref": "#/definitions/model.SlotMachine"
                 }
             }
         },

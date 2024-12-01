@@ -79,6 +79,11 @@ definitions:
       player:
         $ref: '#/definitions/model.Player'
     type: object
+  usecase.GetSlotMachineBalanceResponse:
+    properties:
+      machine:
+        $ref: '#/definitions/model.SlotMachine'
+    type: object
   usecase.LoginRequest:
     properties:
       email:
@@ -187,6 +192,45 @@ paths:
       security:
       - BearerAuth: []
       summary: Criar uma nova máquina caça-níqueis
+      tags:
+      - SlotMachine
+  /machines/balance:
+    get:
+      consumes:
+      - application/json
+      description: Retorna o saldo da máquina caça-níqueis especificada.
+      parameters:
+      - description: ID da máquina caça-níqueis
+        in: query
+        name: machine_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Saldo da máquina caça-níqueis
+          schema:
+            $ref: '#/definitions/usecase.GetSlotMachineBalanceResponse'
+        "400":
+          description: ID da máquina caça-níqueis é obrigatório
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+        "401":
+          description: Não autorizado
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+        "404":
+          description: Máquina caça-níqueis não encontrada
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+        "500":
+          description: Erro interno do servidor
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Obter saldo da máquina caça-níqueis
       tags:
       - SlotMachine
   /play:
