@@ -8,6 +8,7 @@ import (
 	httpInternal "slot-machine/internal/adapters/http"
 	"slot-machine/internal/adapters/http/handler"
 	"slot-machine/internal/application/usecase"
+	"slot-machine/internal/infrastructure/config"
 	"slot-machine/internal/infrastructure/jwt"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
 	"slot-machine/internal/infrastructure/security"
@@ -28,7 +29,8 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	secretKey := "your-secret-key"
+	config.LoadEnv()
+	secretKey := config.GetRequiredEnv("JWT_SECRET")
 	tokenDuration := 24 * time.Hour
 
 	logger := logrus.New()
@@ -53,7 +55,7 @@ func main() {
 
 	router := httpInternal.NewRouter(handler, jwtManager)
 
-	corsAllowedOrigins := []string{"http://localhost:5173"}
+	corsAllowedOrigins := []string{config.GetRequiredEnv("CORS_ALLOWED_ORIGINS")}
 	corsAllowedMethods := []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	corsAllowedHeaders := []string{"Content-Type", "Authorization"}
 
@@ -67,7 +69,10 @@ func main() {
 
 	finalHandler := corsMiddleware(loggingMiddleware)
 
-	addr := ":8081"
+	addr := config.GetEnv("PORT")
+	if addr == "" {
+		addr = ":8081"
+	}
 
 	server := &http.Server{
 		Addr:         addr,
