@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"slot-machine/internal/domain/contextkeys"
 	"slot-machine/internal/domain/model"
 	"slot-machine/internal/domain/repository"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
@@ -15,7 +16,8 @@ func TestGetSlotMachineBalanceUseCase(t *testing.T) {
 
 	getSlotMachineBalanceUC := NewGetSlotMachineBalanceUseCase(slotRepo)
 
-	ctx := context.Background()
+	ctx := context.WithValue(context.Background(), contextkeys.ContextKeyUserID, "admin")
+	ctx = context.WithValue(ctx, contextkeys.ContextKeyIsAdmin, true)
 
 	t.Run("Execute_Success", func(t *testing.T) {
 		machine := model.NewSlotMachine("machine1", 1, 10000, 2, "teste")
