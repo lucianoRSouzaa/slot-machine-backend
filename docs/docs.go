@@ -72,7 +72,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "AdminAuth": []
                     }
                 ],
                 "description": "Permite a criação de uma nova máquina caça-níqueis com os parâmetros especificados.",
@@ -123,7 +123,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "AdminAuth": []
                     }
                 ],
                 "description": "Retorna o saldo da máquina caça-níqueis especificada.",
@@ -528,6 +528,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
+        "AdminAuth": {
+            "type": "apiKey",
+            "name": "X-Admin-Secret",
+            "in": "header"
+        },
         "BearerAuth": {
             "type": "apiKey",
             "name": "Authorization",

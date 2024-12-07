@@ -190,7 +190,7 @@ paths:
           schema:
             $ref: '#/definitions/handler_error.HTTPError'
       security:
-      - BearerAuth: []
+      - AdminAuth: []
       summary: Criar uma nova máquina caça-níqueis
       tags:
       - SlotMachine
@@ -229,7 +229,7 @@ paths:
           schema:
             $ref: '#/definitions/handler_error.HTTPError'
       security:
-      - BearerAuth: []
+      - AdminAuth: []
       summary: Obter saldo da máquina caça-níqueis
       tags:
       - SlotMachine
@@ -338,6 +338,10 @@ paths:
       tags:
       - Player
 securityDefinitions:
+  AdminAuth:
+    in: header
+    name: X-Admin-Secret
+    type: apiKey
   BearerAuth:
     in: header
     name: Authorization

@@ -64,7 +64,7 @@
             "post": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "AdminAuth": []
                     }
                 ],
                 "description": "Permite a criação de uma nova máquina caça-níqueis com os parâmetros especificados.",
@@ -115,7 +115,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "AdminAuth": []
                     }
                 ],
                 "description": "Retorna o saldo da máquina caça-níqueis especificada.",
@@ -520,6 +520,11 @@
         }
     },
     "securityDefinitions": {
+        "AdminAuth": {
+            "type": "apiKey",
+            "name": "X-Admin-Secret",
+            "in": "header"
+        },
         "BearerAuth": {
             "type": "apiKey",
             "name": "Authorization",
