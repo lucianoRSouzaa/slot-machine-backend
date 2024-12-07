@@ -153,7 +153,7 @@ func (h *Handler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} handler_error.HTTPError "Payload inválido ou parâmetros inválidos"
 // @Failure 500 {object} handler_error.HTTPError "Erro interno do servidor"
 // @Router /machines [post]
-// @Security BearerAuth
+// @Security AdminAuth
 func (h *Handler) CreateSlotMachine(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -170,6 +170,14 @@ func (h *Handler) CreateSlotMachine(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.CreateSlotMachineUseCase.Execute(r.Context(), &req)
 	if err != nil {
+		if err == usecase.ErrUnauthorized {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(handler_error.HTTPError{
+				Code:    http.StatusUnauthorized,
+				Message: "Unauthorized",
+			})
+			return
+		}
 		if err == usecase.ErrSlotMachineAlreadyExists {
 			w.WriteHeader(http.StatusConflict)
 			json.NewEncoder(w).Encode(handler_error.HTTPError{
@@ -290,7 +298,7 @@ func (h *Handler) GetPlayerBalance(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} handler_error.HTTPError "Máquina caça-níqueis não encontrada"
 // @Failure 500 {object} handler_error.HTTPError "Erro interno do servidor"
 // @Router /machines/balance [get]
-// @Security BearerAuth
+// @Security AdminAuth
 func (h *Handler) GetSlotMachineBalance(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -311,6 +319,14 @@ func (h *Handler) GetSlotMachineBalance(w http.ResponseWriter, r *http.Request) 
 
 	resp, err := h.GetSlotMachineBalanceUseCase.Execute(r.Context(), &req)
 	if err != nil {
+		if err == usecase.ErrUnauthorized {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(handler_error.HTTPError{
+				Code:    http.StatusUnauthorized,
+				Message: "Unauthorized",
+			})
+			return
+		}
 		if err == repository.ErrSlotMachineNotFound {
 			w.WriteHeader(http.StatusNotFound)
 			json.NewEncoder(w).Encode(handler_error.HTTPError{
