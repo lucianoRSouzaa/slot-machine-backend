@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"slot-machine/internal/adapters/http/handler"
 	"slot-machine/internal/application/usecase"
+	"slot-machine/internal/domain/contextkeys"
 	"slot-machine/internal/domain/model"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
 	"slot-machine/internal/infrastructure/security"
@@ -166,6 +167,10 @@ func TestHandler(t *testing.T) {
 		req, err := httpGo.NewRequest("POST", "/slot-machines", bytes.NewBuffer(jsonBody))
 		assert.NoError(t, err, "Erro ao criar a requisição HTTP")
 
+		ctx := context.WithValue(req.Context(), contextkeys.ContextKeyUserID, "admin")
+		ctx = context.WithValue(ctx, contextkeys.ContextKeyIsAdmin, true)
+		req = req.WithContext(ctx)
+
 		req.Header.Set("Content-Type", "application/json")
 
 		rr := httptest.NewRecorder()
@@ -228,6 +233,10 @@ func TestHandler(t *testing.T) {
 
 		req, err := httpGo.NewRequest("POST", "/slot-machines", bytes.NewBuffer(jsonBody))
 		assert.NoError(t, err, "Erro ao criar a requisição HTTP")
+
+		ctx := context.WithValue(req.Context(), contextkeys.ContextKeyUserID, "admin")
+		ctx = context.WithValue(ctx, contextkeys.ContextKeyIsAdmin, true)
+		req = req.WithContext(ctx)
 
 		req.Header.Set("Content-Type", "application/json")
 
