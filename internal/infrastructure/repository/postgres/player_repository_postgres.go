@@ -2,10 +2,10 @@ package repository_postgres
 
 import (
 	"context"
-	"database/sql"
 	"slot-machine/internal/domain/model"
 	"slot-machine/internal/domain/repository"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -35,7 +35,7 @@ func (r *PostgresPlayerRepository) GetPlayer(ctx context.Context, id string) (*m
 	player := &model.Player{}
 	err := row.Scan(&player.ID, &player.Balance, &player.Email, &player.Password, &player.Role)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			return nil, repository.ErrPlayerNotFound
 		}
 		return nil, err
@@ -51,7 +51,7 @@ func (r *PostgresPlayerRepository) GetPlayerByEmail(ctx context.Context, email s
 	player := &model.Player{}
 	err := row.Scan(&player.ID, &player.Balance, &player.Email, &player.Password, &player.Role)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			return nil, repository.ErrPlayerNotFound
 		}
 		return nil, err
