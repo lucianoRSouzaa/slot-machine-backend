@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"slot-machine/internal/domain/contextkeys"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
 	"testing"
 
@@ -13,7 +14,8 @@ func TestCreateSlotMachineUseCase(t *testing.T) {
 
 	createSlotMachineUC := NewCreateSlotMachineUseCase(slotRepo)
 
-	ctx := context.Background()
+	ctx := context.WithValue(context.Background(), contextkeys.ContextKeyUserID, "admin")
+	ctx = context.WithValue(ctx, contextkeys.ContextKeyIsAdmin, true)
 
 	t.Run("Execute_Success", func(t *testing.T) {
 		req := &CreateSlotMachineRequest{
