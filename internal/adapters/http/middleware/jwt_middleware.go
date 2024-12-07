@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	handler_error "slot-machine/internal/adapters/http/handler/error"
+	"slot-machine/internal/domain/contextkeys"
 	"slot-machine/internal/domain/ports"
 	"strings"
 
@@ -58,7 +59,7 @@ func JWTMiddleware(jwtManager ports.JWTManager) mux.MiddlewareFunc {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), ContextKeyUserID, claims.UserID)
+			ctx := context.WithValue(r.Context(), contextkeys.ContextKeyUserID, claims.UserID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
