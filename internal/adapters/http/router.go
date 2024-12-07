@@ -23,9 +23,13 @@ func NewRouter(handler *handler.Handler, jwtManager ports.JWTManager) http.Handl
 	secure.Use(middleware.JWTMiddleware(jwtManager))
 
 	secure.HandleFunc("/players/balance", handler.GetPlayerBalance).Methods("GET")
-	secure.HandleFunc("/machines", handler.CreateSlotMachine).Methods("POST")
-	secure.HandleFunc("/machines/balance", handler.GetSlotMachineBalance).Methods("GET")
 	secure.HandleFunc("/play", handler.PlaySlotMachine).Methods("POST")
+
+	admin := r.PathPrefix("/").Subrouter()
+	admin.Use(middleware.AdminMiddleware(jwtManager))
+
+	admin.HandleFunc("/machines", handler.CreateSlotMachine).Methods("POST")
+	admin.HandleFunc("/machines/balance", handler.GetSlotMachineBalance).Methods("GET")
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
