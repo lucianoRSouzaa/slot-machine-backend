@@ -28,6 +28,10 @@ import (
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
+
+// @securityDefinitions.apikey AdminAuth
+// @in header
+// @name X-Admin-Secret
 func main() {
 	config.LoadEnv()
 	secretKey := config.GetRequiredEnv("JWT_SECRET")
