@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"slot-machine/internal/domain/contextkeys"
 	"slot-machine/internal/domain/model"
 	"slot-machine/internal/domain/repository"
 
@@ -35,6 +36,12 @@ func NewCreateSlotMachineUseCase(smr repository.SlotMachineRepository) *CreateSl
 }
 
 func (uc *CreateSlotMachineUseCase) Execute(ctx context.Context, req *CreateSlotMachineRequest) (*CreateSlotMachineResponse, error) {
+	isAdmin, ok := ctx.Value(contextkeys.ContextKeyIsAdmin).(bool)
+
+	if !ok || !isAdmin {
+		return nil, ErrUnauthorized
+	}
+
 	id := uuid.New().String()
 
 	if req.Level == 0 || req.MultipleGain == 0 || req.Description == "" {

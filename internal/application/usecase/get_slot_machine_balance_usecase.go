@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"slot-machine/internal/domain/contextkeys"
 	"slot-machine/internal/domain/model"
 	"slot-machine/internal/domain/repository"
 )
@@ -25,6 +26,11 @@ func NewGetSlotMachineBalanceUseCase(smr repository.SlotMachineRepository) *GetS
 }
 
 func (uc *GetSlotMachineBalanceUseCase) Execute(ctx context.Context, req *GetSlotMachineBalanceRequest) (*GetSlotMachineBalanceResponse, error) {
+	isAdmin, ok := ctx.Value(contextkeys.ContextKeyIsAdmin).(bool)
+	if !ok || !isAdmin {
+		return nil, ErrUnauthorized
+	}
+
 	machine, err := uc.SlotMachineRepo.GetSlotMachine(ctx, req.MachineID)
 	if err != nil {
 		return nil, err
