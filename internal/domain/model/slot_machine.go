@@ -11,23 +11,29 @@ type SlotMachine struct {
 	Description    string            `json:"description"`
 }
 
+func DefaultSymbols() map[string]string {
+	return map[string]string{
+		"money_mouth_face": "1F911",
+		"cold_face":        "1F976",
+		"alien":            "1F47D",
+		"heart_on_fire":    "2764",
+		"collision":        "1F4A5",
+	}
+}
+
 func NewSlotMachine(id string, level, balance int, multipleGain int, description string) *SlotMachine {
 	sm := &SlotMachine{
 		ID:             id,
 		Level:          level,
 		Balance:        balance,
 		InitialBalance: balance,
-		Symbols: map[string]string{
-			"money_mouth_face": "1F911",
-			"cold_face":        "1F976",
-			"alien":            "1F47D",
-			"heart_on_fire":    "2764",
-			"collision":        "1F4A5",
-		},
-		MultipleGain: multipleGain,
-		Description:  description,
+		MultipleGain:   multipleGain,
+		Description:    description,
 	}
+
+	sm.Symbols = DefaultSymbols()
 	sm.GeneratePermutations()
+
 	return sm
 }
 
