@@ -340,6 +340,58 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/refresh": {
+            "post": {
+                "description": "Gera um novo token de acesso e um novo token de atualização.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh token",
+                "parameters": [
+                    {
+                        "description": "Token de atualização",
+                        "name": "refreshToken",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usecase.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/usecase.RefreshTokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Token de atualização inválido",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "$ref": "#/definitions/handler_error.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -490,7 +542,10 @@ const docTemplate = `{
         "usecase.LoginResponse": {
             "type": "object",
             "properties": {
-                "token": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
                     "type": "string"
                 }
             }
@@ -523,6 +578,25 @@ const docTemplate = `{
                 },
                 "win": {
                     "type": "boolean"
+                }
+            }
+        },
+        "usecase.RefreshTokenRequest": {
+            "type": "object",
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "usecase.RefreshTokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
                 }
             }
         }

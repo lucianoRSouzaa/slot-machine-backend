@@ -96,7 +96,9 @@ definitions:
     type: object
   usecase.LoginResponse:
     properties:
-      token:
+      access_token:
+        type: string
+      refresh_token:
         type: string
     type: object
   usecase.PlayRequest:
@@ -118,6 +120,18 @@ definitions:
         type: integer
       win:
         type: boolean
+    type: object
+  usecase.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  usecase.RefreshTokenResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
     type: object
 info:
   contact: {}
@@ -337,6 +351,40 @@ paths:
       summary: Obter saldo do jogador
       tags:
       - Player
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Gera um novo token de acesso e um novo token de atualização.
+      parameters:
+      - description: Token de atualização
+        in: body
+        name: refreshToken
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecase.RefreshTokenResponse'
+        "400":
+          description: Requisição inválida
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+        "401":
+          description: Token de atualização inválido
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+        "500":
+          description: Erro interno do servidor
+          schema:
+            $ref: '#/definitions/handler_error.HTTPError'
+      summary: Refresh token
+      tags:
+      - Authentication
 securityDefinitions:
   AdminAuth:
     in: header
