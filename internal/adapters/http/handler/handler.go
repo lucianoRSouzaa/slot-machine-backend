@@ -16,6 +16,7 @@ type Handler struct {
 	GetPlayerBalanceUseCase      *usecase.GetPlayerBalanceUseCase
 	GetSlotMachineBalanceUseCase *usecase.GetSlotMachineBalanceUseCase
 	loginUseCase                 *usecase.LoginUseCase
+	refreshTokenUseCase *usecase.RefreshTokenUseCase
 }
 
 func NewHandler(
@@ -25,6 +26,7 @@ func NewHandler(
 	gpUC *usecase.GetPlayerBalanceUseCase,
 	gsmUC *usecase.GetSlotMachineBalanceUseCase,
 	loginUC *usecase.LoginUseCase,
+	refreshUC *usecase.RefreshTokenUseCase,
 ) *Handler {
 	return &Handler{
 		CreatePlayerUseCase:          cpUC,
@@ -33,6 +35,7 @@ func NewHandler(
 		GetPlayerBalanceUseCase:      gpUC,
 		GetSlotMachineBalanceUseCase: gsmUC,
 		loginUseCase:                 loginUC,
+		refreshTokenUseCase: refreshUC,
 	}
 }
 
@@ -242,6 +245,48 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+}
+
+// Refresh gera um novo token de acesso e um novo token de atualização.
+// @Summary Refresh token
+// @Description Gera um novo token de acesso e um novo token de atualização.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param refreshToken body usecase.RefreshTokenRequest true "Token de atualização"
+// @Success 200 {object} usecase.RefreshTokenResponse
+// @Failure 400 {object} handler_error.HTTPError "Requisição inválida"
+// @Failure 401 {object} handler_error.HTTPError "Token de atualização inválido"
+// @Failure 500 {object} handler_error.HTTPError "Erro interno do servidor"
+// @Router /refresh [post]
+func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
+    var req usecase.RefreshTokenRequest
+    decoder := json.NewDecoder(r.Body)
+    decoder.DisallowUnknownFields()
+    if err := decoder.Decode(&req); err != nil {
+        http.Error(w, "Invalid request payload", http.StatusBadRequest)
+        return
+    }
+
+    resp, err := h.refreshTokenUseCase.Execute(r.Context(), &req)
+    if err != nil {
+        if err == usecase.ErrInvalidRefreshToken {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(handler_error.HTTPError{
+				Code:    http.StatusUnauthorized,
+				Message: err.Error(),
+			})
+
+
+            return
+        }
+		
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(resp)
 }
 
 // GetPlayerBalance retorna o saldo do jogador.
