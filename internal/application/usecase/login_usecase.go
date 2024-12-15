@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"slot-machine/internal/domain/ports"
 	"slot-machine/internal/domain/repository"
@@ -16,6 +15,7 @@ var (
 
 type LoginUseCase struct {
 	PlayerRepo repository.PlayerRepository
+	RefreshTokenRepo repository.RefreshTokenRepository
 	Hasher     security.PasswordHasher
 	JWTManager ports.JWTManager
 }
@@ -26,23 +26,21 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token string `json:"token"`
+	AccessToken  string `json:"access_token"`
+    RefreshToken string `json:"refresh_token"`
 }
 
-func NewLoginUseCase(repo repository.PlayerRepository, hasher security.PasswordHasher, jwtManager ports.JWTManager) *LoginUseCase {
+func NewLoginUseCase(playerRepo repository.PlayerRepository, refreshRepo repository.RefreshTokenRepository, hasher security.PasswordHasher, jwtManager ports.JWTManager) *LoginUseCase {
 	return &LoginUseCase{
-		PlayerRepo: repo,
+		PlayerRepo: playerRepo,
 		Hasher:     hasher,
 		JWTManager: jwtManager,
+		RefreshTokenRepo: refreshRepo,
 	}
 }
 
 func (uc *LoginUseCase) Execute(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
-	players, err := uc.PlayerRepo.ListPlayers(ctx)
 	player, err := uc.PlayerRepo.GetPlayerByEmail(ctx, req.Email)
-
-	fmt.Println(players)
-	fmt.Println(player)
 
 	if err != nil {
 		if err == repository.ErrPlayerNotFound {
@@ -51,20 +49,29 @@ func (uc *LoginUseCase) Execute(ctx context.Context, req *LoginRequest) (*LoginR
 		return nil, err
 	}
 
-	fmt.Println(player.Password)
-	fmt.Println(req.Password)
-
 	err = uc.Hasher.CompareHashAndPassword(player.Password, req.Password)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
-	token, err := uc.JWTManager.Generate(player.ID)
+	accessToken, err := uc.JWTManager.GenerateAccessToken(player.ID)
+    if err != nil {
+        return nil, err
+    }
+
+    refreshToken, err := uc.JWTManager.GenerateRefreshToken(player.ID)
+    if err != nil {
+        return nil, err
+    }
+
+	err = uc.RefreshTokenRepo.StoreRefreshToken(ctx, player.ID, refreshToken)
+
 	if err != nil {
 		return nil, err
 	}
 
 	return &LoginResponse{
-		Token: token,
-	}, nil
+        AccessToken:  accessToken,
+        RefreshToken: refreshToken,
+    }, nil
 }
