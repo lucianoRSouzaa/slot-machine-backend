@@ -17,6 +17,7 @@ func NewRouter(handler *handler.Handler, jwtManager ports.JWTManager) http.Handl
 	r := mux.NewRouter()
 
 	r.HandleFunc("/login", handler.Login).Methods("POST")
+	r.HandleFunc("/refresh", handler.Refresh).Methods("POST")
 	r.HandleFunc("/players", handler.CreatePlayer).Methods("POST")
 
 	secure := r.PathPrefix("/").Subrouter()
