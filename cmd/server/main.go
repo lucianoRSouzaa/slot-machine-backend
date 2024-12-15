@@ -35,27 +35,30 @@ import (
 func main() {
 	config.LoadEnv()
 	secretKey := config.GetRequiredEnv("JWT_SECRET")
-	tokenDuration := 24 * time.Hour
+	accTokenDuration := 15 * time.Minute
+	refreshTokenDuration := 72 * time.Hour
 
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.JSONFormatter{})
 	logger.SetOutput(os.Stdout)
 	logger.SetLevel(logrus.InfoLevel)
 
+	refreshRepo := repository_in_memory.NewInMemoryRefreshTokenRepository()
 	playerRepo := repository_in_memory.NewInMemoryPlayerRepository()
 	slotRepo := repository_in_memory.NewInMemorySlotMachineRepository()
 
 	hasher := security.NewBcryptPasswordHasher(bcrypt.DefaultCost)
-	jwtManager := jwt.NewJWTManager(secretKey, tokenDuration)
+	jwtManager := jwt.NewJWTManager(secretKey, accTokenDuration, refreshTokenDuration)
 
 	playUC := usecase.NewPlayUseCase(playerRepo, slotRepo)
 	createPlayerUC := usecase.NewCreatePlayerUseCase(playerRepo, hasher)
 	createSlotMachineUC := usecase.NewCreateSlotMachineUseCase(slotRepo)
 	getPlayerBalanceUC := usecase.NewGetPlayerBalanceUseCase(playerRepo)
 	getSlotMachineBalanceUC := usecase.NewGetSlotMachineBalanceUseCase(slotRepo)
-	logicUc := usecase.NewLoginUseCase(playerRepo, hasher, jwtManager)
+	loginUC := usecase.NewLoginUseCase(playerRepo, refreshRepo, hasher, jwtManager)
+	refreshUC := usecase.NewRefreshTokenUseCase(jwtManager, refreshRepo)
 
-	handler := handler.NewHandler(createPlayerUC, createSlotMachineUC, playUC, getPlayerBalanceUC, getSlotMachineBalanceUC, logicUc)
+	handler := handler.NewHandler(createPlayerUC, createSlotMachineUC, playUC, getPlayerBalanceUC, getSlotMachineBalanceUC, loginUC, refreshUC)
 
 	router := httpInternal.NewRouter(handler, jwtManager)
 
