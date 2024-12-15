@@ -15,9 +15,6 @@ import (
 
 type ContextKey string
 
-const (
-	ContextKeyUserID ContextKey = "userID"
-)
 
 func JWTMiddleware(jwtManager ports.JWTManager) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
@@ -48,7 +45,7 @@ func JWTMiddleware(jwtManager ports.JWTManager) mux.MiddlewareFunc {
 
 			tokenString := parts[1]
 
-			claims, err := jwtManager.Verify(tokenString)
+			claims, err := jwtManager.VerifyAccessToken(tokenString)
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				json.NewEncoder(w).Encode(handler_error.HTTPError{
@@ -66,7 +63,7 @@ func JWTMiddleware(jwtManager ports.JWTManager) mux.MiddlewareFunc {
 }
 
 func GetUserIDFromContext(ctx context.Context) (string, error) {
-	userID, ok := ctx.Value(ContextKeyUserID).(string)
+	userID, ok := ctx.Value(contextkeys.ContextKeyUserID).(string)
 	if !ok {
 		return "", errors.New("userID not found in context")
 	}
