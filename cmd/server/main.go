@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,8 +10,10 @@ import (
 	"slot-machine/internal/adapters/http/handler"
 	"slot-machine/internal/application/usecase"
 	"slot-machine/internal/infrastructure/config"
+	"slot-machine/internal/infrastructure/db"
 	"slot-machine/internal/infrastructure/jwt"
 	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
+	repository_postgres "slot-machine/internal/infrastructure/repository/postgres"
 	"slot-machine/internal/infrastructure/security"
 	"syscall"
 	"time"
@@ -38,14 +41,26 @@ func main() {
 	accTokenDuration := 15 * time.Minute
 	refreshTokenDuration := 72 * time.Hour
 
+	dataseUrl := config.GetRequiredEnv("DATABASE_URL")
+
+	pool, err := db.NewPgxPool(dataseUrl)
+	if err != nil {
+		log.Fatalf("Falha ao conectar ao banco de dados: %v", err)
+	}
+	defer pool.Close()
+
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.JSONFormatter{})
 	logger.SetOutput(os.Stdout)
 	logger.SetLevel(logrus.InfoLevel)
 
 	refreshRepo := repository_in_memory.NewInMemoryRefreshTokenRepository()
-	playerRepo := repository_in_memory.NewInMemoryPlayerRepository()
-	slotRepo := repository_in_memory.NewInMemorySlotMachineRepository()
+	playerRepo := repository_postgres.NewPostgresPlayerRepository(
+		pool,
+	)
+	slotRepo := repository_postgres.NewPostgresSlotMachineRepository(
+		pool,
+	)
 
 	hasher := security.NewBcryptPasswordHasher(bcrypt.DefaultCost)
 	jwtManager := jwt.NewJWTManager(secretKey, accTokenDuration, refreshTokenDuration)
