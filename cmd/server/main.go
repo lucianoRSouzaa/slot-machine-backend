@@ -12,7 +12,6 @@ import (
 	"slot-machine/internal/infrastructure/config"
 	"slot-machine/internal/infrastructure/db"
 	"slot-machine/internal/infrastructure/jwt"
-	repository_in_memory "slot-machine/internal/infrastructure/repository/in_memory"
 	repository_postgres "slot-machine/internal/infrastructure/repository/postgres"
 	"slot-machine/internal/infrastructure/security"
 	"syscall"
@@ -54,7 +53,9 @@ func main() {
 	logger.SetOutput(os.Stdout)
 	logger.SetLevel(logrus.InfoLevel)
 
-	refreshRepo := repository_in_memory.NewInMemoryRefreshTokenRepository()
+	refreshRepo := repository_postgres.NewPostgresRefreshTokenRepository(
+		pool,
+	)
 	playerRepo := repository_postgres.NewPostgresPlayerRepository(
 		pool,
 	)
