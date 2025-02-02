@@ -13,7 +13,7 @@ type PostgresSlotMachineRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewPostgresSlotMachineRepository(pool *pgxpool.Pool) *PostgresSlotMachineRepository {
+func NewPostgresSlotMachineRepository(pool *pgxpool.Pool) repository.SlotMachineRepository {
 	return &PostgresSlotMachineRepository{
 		pool: pool,
 	}
